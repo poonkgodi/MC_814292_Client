@@ -41,6 +41,7 @@ namespace ClientService.Controllers
         [Route("AddUser")]
         public IActionResult AddUser([FromBody] User oUser)
         {
+            
             try
             {
                 oUser.Password =  UtilityRepository.Encrypt(oUser.Password, "sblw-3hn8-sqoy19");

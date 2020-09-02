@@ -18,10 +18,10 @@ namespace ClientService.Controllers
         private static IQueueClient _queueClient;
 
         private readonly ILogger<ClientRequestController> _logger;
-        private static IRepository<ClientRequest> _repoEntity;
+        private  IRepository<ClientRequest> _repoEntity;
         public ClientRequestController(IRepository<ClientRequest> repoEntity)
         {
-            _repoEntity = repoEntity;
+            this._repoEntity = repoEntity;
         }
 
         //Get All Values
@@ -35,43 +35,21 @@ namespace ClientService.Controllers
         // POST api/values
         [HttpPost]
         [Route("AddClientRequest")]
-        public IActionResult AddClientRequest()
+        public IActionResult AddClientRequest([FromBody] ClientRequest orepoentity)
         {
             try
             {
-                RegisterMessageHandlerAndReceiveMessages();
-                return Ok();
+                int res = _repoEntity.Insert(orepoentity);
+                if (res != 0)
+                {
+                    return Ok(res);
+                }
+                return Forbid();
             }
             catch (Exception ex)
             {
-                return Forbid();
+                return null;
             }
-        }
-       
-        public static void RegisterMessageHandlerAndReceiveMessages()
-        {
-            _queueClient = new QueueClient(bus_connectionString, queuename);
-
-            var options = new MessageHandlerOptions(ExceptionReceived)
-            {
-                MaxConcurrentCalls = 1,
-                AutoComplete = false
-            };
-
-            _queueClient.RegisterMessageHandler(ProcessMessagesAsync, options);
-            //_queueClient.CloseAsync().Wait();
-        }
-
-       public static async Task ProcessMessagesAsync(Message message, CancellationToken token)
-        {
-            String str = Encoding.UTF8.GetString(message.Body);
-            ClientRequest clientRequest = Newtonsoft.Json.JsonConvert.DeserializeObject<ClientRequest>(str);
-            int res = _repoEntity.Insert(clientRequest);
-            await _queueClient.CompleteAsync(message.SystemProperties.LockToken);
-        }
-        static Task ExceptionReceived(ExceptionReceivedEventArgs args)
-        {
-            return Task.CompletedTask;
         }
     }
 }
