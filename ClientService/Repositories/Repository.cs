@@ -13,6 +13,7 @@ namespace ClientService.Repositories
         int Insert(T entity);
         int Update(T entity);
         int Delete(T entity);
+        void Create(T entity);
     }
 
     public class Repository<T> : IRepository<T> where T : class
@@ -39,6 +40,11 @@ namespace ClientService.Repositories
             entities.Add(entity);
             int res = context.SaveChanges();
             return res;
+        }
+        public void Create(T entity)
+        {
+            entities.Add(entity);
+            context.SaveChanges();
         }
         public int Update(T entity)
         {

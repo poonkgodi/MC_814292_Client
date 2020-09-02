@@ -1,16 +1,15 @@
-﻿using ClientService.Models;
+﻿using System;
+using System.Collections.Generic;
+using ClientService.Models;
 using ClientService.Repositories;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Microsoft.Azure.ServiceBus;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System;
-using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
 
 namespace ClientService.Controllers
 {
+    [Route("api/[Controller]")]
+    [ApiController]
     public class ClientRequestController : ControllerBase
     {
         private static string bus_connectionString = "Endpoint=sb://auditclientns.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=rDJbSB0nbmK0cs0fw9A0vbLfMyIa8+Zudb3nlCgj6GI=";
@@ -25,8 +24,8 @@ namespace ClientService.Controllers
         }
 
         //Get All Values
-        [HttpGet("GetClientRequest")]
-        public IEnumerable<ClientRequest> GetClientRequestDetails()
+        [HttpGet]
+        public IEnumerable<ClientRequest> GetClientRequest()
         {
             var userData = _repoEntity.GetAll();
             return userData;
@@ -34,8 +33,7 @@ namespace ClientService.Controllers
 
         // POST api/values
         [HttpPost]
-        [Route("AddClientRequest")]
-        public IActionResult AddClientRequest([FromBody] ClientRequest orepoentity)
+        public IActionResult PostClient([FromBody] ClientRequest orepoentity)
         {
             try
             {

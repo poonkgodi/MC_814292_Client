@@ -3,15 +3,20 @@ using ClientService.Repositories;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.ServiceBus;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace ClientService.Controllers
 {
+    [Route("api/[Controller]")]
+    [ApiController]
     public class ClientResponseController
     {
         IHostingEnvironment env;
@@ -33,17 +38,17 @@ namespace ClientService.Controllers
 
         [HttpPost]
         [Route("AddClientResponse")]
-        public IActionResult Create([FromForm] ClientResponse repoClientResponse)
+        public void Create([FromForm] ClientResponse repoClientResponse)
         {
-                #region Read File Content
+            #region Read File Content
 
-                var uploads = Path.Combine(env.WebRootPath, "uploads");
-                bool exists = Directory.Exists(uploads);
-                if (!exists)
-                    Directory.CreateDirectory(uploads);
+            var uploads = Path.Combine(env.WebRootPath, "uploads");
+            bool exists = Directory.Exists(uploads);
+            if (!exists)
+                Directory.CreateDirectory(uploads);
 
-                string fileName = Path.GetFileName(repoClientResponse.File.FileName);
-                byte[] fileData;
+            string fileName = Path.GetFileName(repoClientResponse.File.FileName);
+            byte[] fileData;
             using (var target = new MemoryStream())
             {
                 repoClientResponse.File.CopyTo(target);
@@ -51,25 +56,56 @@ namespace ClientService.Controllers
             }
 
 
-                //var fileStream = new FileStream(Path.Combine(uploads, product.File.FileName), FileMode.Create);
-                string mimeType = repoClientResponse.File.ContentType;
-                //= new byte[product.File.Length];
+            //var fileStream = new FileStream(Path.Combine(uploads, product.File.FileName), FileMode.Create);
+            string mimeType = repoClientResponse.File.ContentType;
+            //= new byte[product.File.Length];
 
-                BlobStorageService objBlobService = new BlobStorageService();
+            BlobStorageService objBlobService = new BlobStorageService();
 
             repoClientResponse.ImagePath = objBlobService.UploadFileToBlob(repoClientResponse.File.FileName, fileData, mimeType);
             #endregion
 
-            int res = _repoClientResponse.Insert(repoClientResponse);
-            if (res != 0)
+            // Send the Audit request to client Application through ServiceBus Queue */
+            string bus_connectionString = "Endpoint=sb://auditclientns.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=rDJbSB0nbmK0cs0fw9A0vbLfMyIa8+Zudb3nlCgj6GI=";
+            string queuename = "clientmq";
+            IQueueClient auditQueue;
+            auditQueue = new QueueClient(bus_connectionString, queuename);
+
+            string auditRequestID = repoClientResponse.AuditRequestID;
+
+            string clientRequestMessage = JsonConvert.SerializeObject(repoClientResponse);
+            clientRequestMessage = repoClientResponse.ClientId + "|" + clientRequestMessage;
+            var message = new Message(Encoding.UTF8.GetBytes(clientRequestMessage));
+            auditQueue.SendAsync(message);
+
+
+            _repoClientResponse.Create(repoClientResponse);
+        }
+
+
+        // PUT api/values
+        [HttpPut]
+        [Route("UpdateResponse/{id:int}")]
+        public IActionResult UpdateResponse([FromBody] ClientResponse repoEntity, int id)
+        {
+            try
+            {
+             
+
+                int res = _repoClientResponse.Update(repoEntity);
+                if (res != 0)
+                {
+                    return null;
+                }
+                return null;
+            }
+            catch (Exception ex)
             {
                 return null;
             }
-            return null;
-            //     return RedirectToAction(nameof(Index));
         }
-           // return View(product);
     }
+
 
     public class FileAttachmentForm
     {

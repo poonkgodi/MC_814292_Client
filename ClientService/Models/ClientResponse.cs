@@ -8,10 +8,6 @@ namespace ClientService.Models
 {
     public class ClientResponse
     {
-        public ClientResponse()
-        {
-            Created_Timestamp = DateTime.Now;
-        }
         public int Id { get; set; }
         public string AuditRequestID { get; set; }
         public string AuditPortfolioID { get; set; }
@@ -19,7 +15,7 @@ namespace ClientService.Models
         [Required]
         public int ClientId { get; set; }
         public string Request { get; set; }
-        public DateTime Created_Timestamp { get; set; }
+        public DateTime Created_Timestamp { get; set; } = DateTime.Now;
 
         [Required(ErrorMessage = "ImageName")]
         [StringLength(50, MinimumLength = 2, ErrorMessage = "Must be with 2 to 50 characters")]

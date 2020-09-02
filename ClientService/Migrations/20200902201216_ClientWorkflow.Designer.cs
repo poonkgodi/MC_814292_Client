@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ClientService.Migrations
 {
     [DbContext(typeof(AppDBContext))]
-    [Migration("20200901043355_ClientSystem")]
-    partial class ClientSystem
+    [Migration("20200902201216_ClientWorkflow")]
+    partial class ClientWorkflow
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -28,35 +28,29 @@ namespace ClientService.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("AuditorId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(50)")
-                        .HasMaxLength(50);
+                    b.Property<string>("AuditRequestID")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("AuditorPortfolioId")
+                    b.Property<string>("AuditorID")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("AuditorPortfolioID")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ClientId")
                         .HasColumnType("int");
 
-                    b.Property<int>("AuditorRequestId")
-                        .HasColumnType("int");
+                    b.Property<DateTime>("Created_Timestamp")
+                        .HasColumnType("datetime2");
 
-                    b.Property<string>("ClientId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(50)")
-                        .HasMaxLength(50);
+                    b.Property<string>("Request")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Comments")
-                        .HasColumnType("nvarchar(300)")
-                        .HasMaxLength(300);
+                    b.Property<string>("Request_Comment")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(1000)")
-                        .HasMaxLength(1000);
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(100)")
-                        .HasMaxLength(100);
+                    b.Property<string>("Response_Comment")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 

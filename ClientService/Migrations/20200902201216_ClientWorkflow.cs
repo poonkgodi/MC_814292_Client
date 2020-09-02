@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace ClientService.Migrations
 {
-    public partial class ClientSystem : Migration
+    public partial class ClientWorkflow : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -13,13 +13,14 @@ namespace ClientService.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    AuditorId = table.Column<string>(maxLength: 50, nullable: false),
-                    AuditorPortfolioId = table.Column<int>(nullable: false),
-                    AuditorRequestId = table.Column<int>(nullable: false),
-                    Title = table.Column<string>(maxLength: 100, nullable: false),
-                    Description = table.Column<string>(maxLength: 1000, nullable: false),
-                    Comments = table.Column<string>(maxLength: 300, nullable: true),
-                    ClientId = table.Column<string>(maxLength: 50, nullable: false)
+                    AuditorPortfolioID = table.Column<string>(nullable: true),
+                    AuditRequestID = table.Column<string>(nullable: true),
+                    AuditorID = table.Column<string>(nullable: true),
+                    ClientId = table.Column<int>(nullable: false),
+                    Request = table.Column<string>(nullable: true),
+                    Created_Timestamp = table.Column<DateTime>(nullable: false),
+                    Request_Comment = table.Column<string>(nullable: true),
+                    Response_Comment = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
