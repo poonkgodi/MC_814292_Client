@@ -17,12 +17,12 @@ namespace ClientService.Models
         public string Request { get; set; }
         public DateTime Created_Timestamp { get; set; } = DateTime.Now;
 
-        [Required(ErrorMessage = "ImageName")]
-        [StringLength(50, MinimumLength = 2, ErrorMessage = "Must be with 2 to 50 characters")]
+        
+        //[StringLength(50, MinimumLength = 2, ErrorMessage = "Must be with 2 to 50 characters")]
         public string ImageName { get; set; }
         
-        [Required(ErrorMessage = "ImagePath")]
-        [StringLength(250, MinimumLength = 2, ErrorMessage = "Must be with 2 to 250 characters")]
+        
+       // [StringLength(250, MinimumLength = 2, ErrorMessage = "Must be with 2 to 250 characters")]
         public string ImagePath { get; set; }
 
         [NotMapped]

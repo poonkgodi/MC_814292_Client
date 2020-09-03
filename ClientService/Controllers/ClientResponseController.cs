@@ -65,18 +65,6 @@ namespace ClientService.Controllers
             repoClientResponse.ImagePath = objBlobService.UploadFileToBlob(repoClientResponse.File.FileName, fileData, mimeType);
             #endregion
 
-            // Send the Audit request to client Application through ServiceBus Queue */
-            string bus_connectionString = "Endpoint=sb://auditclientns.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=rDJbSB0nbmK0cs0fw9A0vbLfMyIa8+Zudb3nlCgj6GI=";
-            string queuename = "clientmq";
-            IQueueClient auditQueue;
-            auditQueue = new QueueClient(bus_connectionString, queuename);
-
-            string auditRequestID = repoClientResponse.AuditRequestID;
-
-            string clientRequestMessage = JsonConvert.SerializeObject(repoClientResponse);
-            clientRequestMessage = repoClientResponse.ClientId + "|" + clientRequestMessage;
-            var message = new Message(Encoding.UTF8.GetBytes(clientRequestMessage));
-            auditQueue.SendAsync(message);
 
 
             _repoClientResponse.Create(repoClientResponse);
@@ -86,22 +74,41 @@ namespace ClientService.Controllers
         // PUT api/values
         [HttpPut]
         [Route("UpdateResponse/{id:int}")]
-        public IActionResult UpdateResponse([FromBody] ClientResponse repoEntity, int id)
+        public void UpdateResponse([FromBody] ClientResponse repoClientResponse, int id)
         {
             try
             {
-             
+                int res = _repoClientResponse.Update(repoClientResponse);
 
-                int res = _repoClientResponse.Update(repoEntity);
-                if (res != 0)
-                {
-                    return null;
-                }
-                return null;
+                // Send the Audit request to client Application through ServiceBus Queue */
+                string bus_connectionString = "Endpoint=sb://auditclientns.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=rDJbSB0nbmK0cs0fw9A0vbLfMyIa8+Zudb3nlCgj6GI=";
+                string queuename = "clientmq";
+                IQueueClient auditQueue;
+                auditQueue = new QueueClient(bus_connectionString, queuename);
+
+                string auditRequestID = repoClientResponse.AuditRequestID;
+
+                ClientResponsetoAuditRequest cresponse = new ClientResponsetoAuditRequest();
+                cresponse.AuditPortfolioID = repoClientResponse.AuditPortfolioID;
+                cresponse.AuditRequestID = repoClientResponse.AuditRequestID;
+                cresponse.AuditorID = repoClientResponse.AuditorID;
+                cresponse.ClientId = repoClientResponse.ClientId;
+                cresponse.Created_Timestamp = repoClientResponse.Created_Timestamp;
+                cresponse.Request = repoClientResponse.Request +
+                                String.Format("[{0} : {1}]"
+                                , repoClientResponse.ImageName
+                                , repoClientResponse.ImagePath);
+
+
+                string clientRequestMessage = JsonConvert.SerializeObject(cresponse);
+                clientRequestMessage = repoClientResponse.AuditRequestID + "|" + clientRequestMessage;
+                var message = new Message(Encoding.UTF8.GetBytes(clientRequestMessage));
+                auditQueue.SendAsync(message);
+
             }
             catch (Exception ex)
             {
-                return null;
+                string Err = ex.Message;
             }
         }
     }
