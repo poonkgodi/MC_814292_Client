@@ -4,18 +4,20 @@ using ClientService.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace ClientService.Migrations
 {
     [DbContext(typeof(AppDBContext))]
-    partial class AppDBContextModelSnapshot : ModelSnapshot
+    [Migration("20200903165955_securityAdded")]
+    partial class securityAdded
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.1.6")
+                .HasAnnotation("ProductVersion", "3.1.7")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -26,13 +28,13 @@ namespace ClientService.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("AuditPortfolioID")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("AuditRequestID")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("AuditorID")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("AuditorPortfolioID")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("ClientId")
@@ -42,6 +44,12 @@ namespace ClientService.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Request")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Request_Comment")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Response_Comment")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -71,10 +79,10 @@ namespace ClientService.Migrations
                     b.Property<DateTime>("Created_Timestamp")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Doc_Name")
+                    b.Property<string>("ImageName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Doc_Path")
+                    b.Property<string>("ImagePath")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Request")

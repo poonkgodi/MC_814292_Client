@@ -8,8 +8,8 @@ namespace ClientService.Models
     public class ClientResponsetoAuditRequest
     {
         public int Id { get; set; }
-        public string AuditRequestID { get; set; }
         public string AuditPortfolioID { get; set; }
+        public string AuditRequestID { get; set; }
         public string AuditorID { get; set; }
         public int ClientId { get; set; }
         public string Request { get; set; }

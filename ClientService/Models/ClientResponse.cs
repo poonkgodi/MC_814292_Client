@@ -19,11 +19,11 @@ namespace ClientService.Models
 
         
         //[StringLength(50, MinimumLength = 2, ErrorMessage = "Must be with 2 to 50 characters")]
-        public string ImageName { get; set; }
+        public string Doc_Name { get; set; }
         
         
        // [StringLength(250, MinimumLength = 2, ErrorMessage = "Must be with 2 to 250 characters")]
-        public string ImagePath { get; set; }
+        public string Doc_Path { get; set; }
 
         [NotMapped]
         public IFormFile File { get; set; }

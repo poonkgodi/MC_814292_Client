@@ -62,7 +62,7 @@ namespace ClientService.Controllers
 
             BlobStorageService objBlobService = new BlobStorageService();
 
-            repoClientResponse.ImagePath = objBlobService.UploadFileToBlob(repoClientResponse.File.FileName, fileData, mimeType);
+            repoClientResponse.Doc_Path = objBlobService.UploadFileToBlob(repoClientResponse.File.FileName, fileData, mimeType);
             #endregion
 
 
@@ -73,8 +73,8 @@ namespace ClientService.Controllers
 
         // PUT api/values
         [HttpPut]
-        [Route("UpdateResponse/{id:int}")]
-        public void UpdateResponse([FromBody] ClientResponse repoClientResponse, int id)
+        [Route("UpdateResponse")]
+        public void UpdateResponse([FromBody] ClientResponse repoClientResponse)
         {
             try
             {
@@ -83,27 +83,26 @@ namespace ClientService.Controllers
                 // Send the Audit request to client Application through ServiceBus Queue */
                 string bus_connectionString = "Endpoint=sb://auditclientns.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=rDJbSB0nbmK0cs0fw9A0vbLfMyIa8+Zudb3nlCgj6GI=";
                 string queuename = "clientmq";
-                IQueueClient auditQueue;
-                auditQueue = new QueueClient(bus_connectionString, queuename);
+                IQueueClient clientQueue;
+                clientQueue = new QueueClient(bus_connectionString, queuename);
 
                 string auditRequestID = repoClientResponse.AuditRequestID;
 
                 ClientResponsetoAuditRequest cresponse = new ClientResponsetoAuditRequest();
+                cresponse.Id = repoClientResponse.Id;
                 cresponse.AuditPortfolioID = repoClientResponse.AuditPortfolioID;
                 cresponse.AuditRequestID = repoClientResponse.AuditRequestID;
                 cresponse.AuditorID = repoClientResponse.AuditorID;
                 cresponse.ClientId = repoClientResponse.ClientId;
+                cresponse.Request = repoClientResponse.Request;
                 cresponse.Created_Timestamp = repoClientResponse.Created_Timestamp;
-                cresponse.Request = repoClientResponse.Request +
-                                String.Format("[{0} : {1}]"
-                                , repoClientResponse.ImageName
-                                , repoClientResponse.ImagePath);
+                
 
 
                 string clientRequestMessage = JsonConvert.SerializeObject(cresponse);
-                clientRequestMessage = repoClientResponse.AuditRequestID + "|" + clientRequestMessage;
+                //clientRequestMessage = repoClientResponse.AuditRequestID + "|" + clientRequestMessage;
                 var message = new Message(Encoding.UTF8.GetBytes(clientRequestMessage));
-                auditQueue.SendAsync(message);
+                clientQueue.SendAsync(message);
 
             }
             catch (Exception ex)

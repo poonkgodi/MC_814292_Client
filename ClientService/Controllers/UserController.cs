@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace ClientService.Controllers
 {
@@ -22,17 +23,41 @@ namespace ClientService.Controllers
         [HttpGet("GetUSer")]
         public IEnumerable<User> GetUserDetails()
         {
-            var userData = _repoUser.GetAll();
-            return userData;
+            try
+            {
+                var userData = _repoUser.GetAll();
+                return userData;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
         }
 
 
-        
+        ////Get All Values
+        //[HttpGet("GetUSer")]
+        //public async Task<IEnumerable<User>> GetUserDetails()
+        //{
+        //    try
+        //    {
+        //        var userData = await this._repoUser.GetAllasync();
+        //        return userData;
+        //    }
+        //    catch(Exception ex)
+        //    {
+        //        return null;
+        //    }
+        //}
+
+
+
         //Get specific Values
         [HttpGet("GetSpecificUSer/{id:int}")]
         public IEnumerable<User> GetSpecificDetail(int id)
         {
-            var userData = _repoUser.GetAll().Where(x=>x.Id == id);
+            IEnumerable<User> userData = _repoUser.GetAll();
+            userData = userData.Where(x => x.Id == id);
             return userData;
         }
 
@@ -41,10 +66,9 @@ namespace ClientService.Controllers
         [Route("AddUser")]
         public IActionResult AddUser([FromBody] User oUser)
         {
-            
             try
             {
-                oUser.Password =  UtilityRepository.Encrypt(oUser.Password, "sblw-3hn8-sqoy19");
+                oUser.Password = UtilityRepository.Encrypt(oUser.Password, "sblw-3hn8-sqoy19");
                 int res = _repoUser.Insert(oUser);
                 if (res != 0)
                 {
@@ -61,7 +85,7 @@ namespace ClientService.Controllers
         // PUT api/values
         [HttpPut]
         [Route("UpdateUser/{id:int}")]
-        public IActionResult UpdateUser([FromBody] User oUser,int id)
+        public IActionResult UpdateUser([FromBody] User oUser, int id)
         {
             try
             {
@@ -86,7 +110,8 @@ namespace ClientService.Controllers
         {
             try
             {
-                User oUser = _repoUser.GetAll().Where(x => x.Id == id).FirstOrDefault();
+                var exitingUser = _repoUser.GetAll();
+                var oUser = exitingUser.Where(x => x.Id == id).FirstOrDefault();
                 int res = _repoUser.Delete(oUser);
                 if (res != 0)
                 {
@@ -100,4 +125,5 @@ namespace ClientService.Controllers
             }
         }
     }
+
 }
